@@ -1,0 +1,32 @@
+.avatar_name{
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding-left: 27px;
+  box-sizing: border-box;
+  .avatar{
+    height: 58px;
+    width: 58px;
+    border-radius: 29px;
+  }
+  .user-face-btn {
+    height: 58px;
+    width: 58px;
+    padding: 0;
+    margin: 0;
+    background-size: contain;
+    border: none;
+    background: transparent;
+    line-height: inherit;
+    &:after {
+      border: none!important;
+    }
+  }
+  .name{
+    font-family: PingFangSC-Medium;
+    font-size: 16px;
+    color: #FFFFFF;
+    letter-spacing: 0;
+    margin-left: 10px;
+  }
+}
