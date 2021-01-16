@@ -1,0 +1,34 @@
+const { dependencies } = require('./package.json');
+const { exec } = require('child_process');
+const chalk = require('chalk');
+const log = console.log;
+
+const mydeps = [
+  'axios',
+  'axios-miniprogram-adapter',
+  'classnames',
+  'crypto-js',
+  'dayjs'
+].concat(Object.keys(dependencies).filter(n => n.startsWith('@geeeger')))
+
+function createUpdateTaskChain(deps) {
+  let p = Promise.resolve()
+  deps.forEach(dep => {
+    p = p.then(() => new Promise((resolve) => {
+      log(`start ${dep}`)
+      exec(`yarn add ${dep}@latest -E`, (err, stdout, stderr) => {
+        if (err) {
+          log('err','\n',err)
+          log('stderr', '\n', stderr)
+          log(`deps: ${dep} update ` + chalk.red('failed'))
+        } else {
+          log(`deps: ${dep} update ` + chalk.green('success'))
+        }
+        resolve()
+      })
+    }))
+  });
+  return p
+}
+
+createUpdateTaskChain(mydeps)

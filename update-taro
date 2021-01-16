@@ -1,0 +1,56 @@
+const { dependencies, devDependencies } = require('./package.json');
+const { exec } = require('child_process');
+const fetch = require('node-fetch');
+const chalk = require('chalk');
+const log = console.log;
+
+const deps = [
+  '@tarojs/components',
+  '@tarojs/react',
+  '@tarojs/runtime',
+  '@tarojs/taro'
+];
+const devdeps = [
+  '@tarojs/cli',
+  '@tarojs/mini-runner',
+  '@tarojs/webpack-runner',
+  'babel-preset-taro',
+  'eslint-config-taro'
+]
+
+let version = ''
+
+function fetchLatestVersion() {
+  return fetch('https://registry.npmjs.org/-/package/@tarojs/cli/dist-tags')
+    .then(res => res.json())
+    .then(res => {
+      version = res.latest
+      log(chalk.green('version: ') + version)
+    })
+}
+
+function createUpdateTaskChain(deps, dev) {
+  let p = Promise.resolve()
+  deps.forEach(dep => {
+    p = p.then(() => new Promise((resolve) => {
+      log(`start ${dep}`)
+      exec(`yarn add ${dep}@${version}${dev?' -D':''} -E`, (err, stdout, stderr) => {
+        if (err) {
+          log('err','\n',err)
+          log('stderr', '\n', stderr)
+          log(`deps: ${dep} update ` + chalk.red('failed'))
+        } else {
+          log(`deps: ${dep} update ` + chalk.green('success'))
+        }
+        resolve()
+      })
+    }))
+  });
+  return p
+}
+
+fetchLatestVersion()
+  .then(() => createUpdateTaskChain(deps, false))
+  .then(() => createUpdateTaskChain(devdeps, true))
+
+
