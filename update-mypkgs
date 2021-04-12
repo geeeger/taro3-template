@@ -8,15 +8,20 @@ const mydeps = [
   'axios-miniprogram-adapter',
   'classnames',
   'crypto-js',
-  'dayjs'
+  'dayjs',
+  'date-fns'
 ].concat(Object.keys(dependencies).filter(n => n.startsWith('@geeeger')))
 
-function createUpdateTaskChain(deps) {
+const deps = [
+  '@types/classnames',
+];
+
+function createUpdateTaskChain(deps, dev) {
   let p = Promise.resolve()
   deps.forEach(dep => {
     p = p.then(() => new Promise((resolve) => {
       log(`start ${dep}`)
-      exec(`yarn add ${dep}@latest -E`, (err, stdout, stderr) => {
+      exec(`yarn add ${dep}@latest${dev?' -D':''} -E`, (err, stdout, stderr) => {
         if (err) {
           log('err','\n',err)
           log('stderr', '\n', stderr)
@@ -31,4 +36,5 @@ function createUpdateTaskChain(deps) {
   return p
 }
 
-createUpdateTaskChain(mydeps)
+createUpdateTaskChain(mydeps, false)
+  .then(() => createUpdateTaskChain(deps, true))
